@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -14,8 +15,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -43,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Room App");
 //        dbHelper = new DatabaseHelper(this);
-        contactsDatabase = Room.databaseBuilder(this, ContactsDatabase.class, "ContactsDB").build();
+        contactsDatabase = Room.databaseBuilder(this, ContactsDatabase.class, "ContactsDB").addCallback(callback).build();
 
         contacts = new ArrayList<>();
         new getAllContactsAsync().execute();
@@ -275,4 +279,22 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
         }
     }
+
+    RoomDatabase.Callback callback = new RoomDatabase.Callback() {
+        @Override
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            super.onCreate(db);
+            Log.v("AAA", "onCreate()");
+            createContact("Anubhav", "anubhav11march@gmail.com");
+            createContact("Dev", "devjadeja549@gmail.com");
+            createContact("Avinash", "avinashkhetri@gmail.com");
+            createContact("Rishabh", "sleepercell@gmail.com");
+        }
+
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+            Log.v("AAA", "onOpen()");
+        }
+    };
 }
