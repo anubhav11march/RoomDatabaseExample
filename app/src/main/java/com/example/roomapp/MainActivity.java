@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -29,7 +30,9 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ArrayList<Contact> contacts;
     ContactsAdapter contactsAdapter;
-    DatabaseHelper dbHelper;
+//    DatabaseHelper dbHelper;
+    ContactsDatabase contactsDatabase;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +41,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Room App");
-        dbHelper = new DatabaseHelper(this);
+//        dbHelper = new DatabaseHelper(this);
+        contactsDatabase = Room.databaseBuilder(this, ContactsDatabase.class, "ContactsDB").allowMainThreadQueries().build();
+
         contacts = new ArrayList<>();
-        contacts.addAll(dbHelper.getAllCOntacts());
+        contacts.addAll(contactsDatabase.getContactDAO().getAllContacts());
 
 
         recyclerView = findViewById(R.id.recyclerView);
@@ -188,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         Contact contact = contacts.get(position);
         contact.setName(name);
         contact.setEmail(email);
-        dbHelper.updateContact(contact);
+        contactsDatabase.getContactDAO().updateContact(contact);
         contacts.set(position, contact);
         contactsAdapter.notifyDataSetChanged();
 
@@ -196,14 +201,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void deleteContact(int position){
         Contact contact = contacts.get(position);
-        dbHelper.deleteCOntact(contact);
+        contactsDatabase.getContactDAO().deleteCOntact(contact);
         contacts.remove(position);
         contactsAdapter.notifyDataSetChanged();
     }
 
     public void createContact(String name, String email){
-        long id = dbHelper.insertContact(name, email);
-        Contact contact = dbHelper.getContact(id);
+        long id = contactsDatabase.getContactDAO().addContact(new Contact(name, email, 0));
+        Contact contact = contactsDatabase.getContactDAO().getContact(id);
         if(contact!=null){
             contacts.add(0, contact);
             contactsAdapter.notifyDataSetChanged();
