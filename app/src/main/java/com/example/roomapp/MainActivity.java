@@ -289,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
             createContact("Dev", "devjadeja549@gmail.com");
             createContact("Avinash", "avinashkhetri@gmail.com");
             createContact("Rishabh", "sleepercell@gmail.com");
+            createContact("KyloDroid", "cafreakanu@gmail.com");
         }
 
         @Override
