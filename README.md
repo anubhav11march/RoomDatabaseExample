@@ -1,3 +1,3 @@
-# SQLiteOpenHelperExample
+# RoomDatabase Example
 
-This project is an example of the traditional SQLiteOpenHelper. It has the features of adding, updating and deleting items in the SQL Database.
+This project is an example of the latest Room Persistence Library databse of the Android Jetpack library.
