@@ -13,6 +13,8 @@ public class Contact {
     private String name;
     @ColumnInfo(name = "contact_email")
     private String email;
+    @ColumnInfo(name = "timestamp")
+    private Long timeStamp;
     @ColumnInfo(name = "contact_id")
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -23,10 +25,11 @@ public class Contact {
 
     }
 
-    public Contact(String name, String email, int id){
+    public Contact(String name, String email, int id, Long timeStamp){
         this.email = email;
         this.name = name;
         this.id = id;
+        this.timeStamp = timeStamp;
     }
 
     public String getName() {
@@ -41,6 +44,8 @@ public class Contact {
         return id;
     }
 
+    public Long getTimeStamp(){ return timeStamp; }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -52,6 +57,8 @@ public class Contact {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public void setTimeStamp(Long timeStamp){ this.timeStamp = timeStamp; }
 
 }
 

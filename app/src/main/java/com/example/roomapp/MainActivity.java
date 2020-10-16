@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -24,7 +23,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,10 +34,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    Spinner selector;
+
     RecyclerView recyclerView;
     ArrayList<Contact> contacts;
     ContactsAdapter contactsAdapter;
-//    DatabaseHelper dbHelper;
+    //    DatabaseHelper dbHelper;
     ContactsDatabase contactsDatabase;
 
 
@@ -49,9 +53,16 @@ public class MainActivity extends AppCompatActivity {
 //        dbHelper = new DatabaseHelper(this);
         contactsDatabase = Room.databaseBuilder(this, ContactsDatabase.class, "ContactsDB").addCallback(callback).build();
 
+        selector = findViewById(R.id.spinnerSort);
+        String[] select = {"Date","Name"};
         contacts = new ArrayList<>();
-        new getAllContactsAsync().execute();
+        //new getAllContactsAsync().execute();
+        new getAllContactsByDateAsync().execute();
 
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, select);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        selector.setAdapter(adapter);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -66,11 +77,31 @@ public class MainActivity extends AppCompatActivity {
                 addContact(null, -1);
             }
         });
+
+        createContact("Anubhav", "anubhav11march@gmail.com",0L);
+        createContact("Dev", "devjadeja549@gmail.com",1L);
+        createContact("Avinash", "avinashkhetri@gmail.com",2L);
+        createContact("Rishabh", "sleepercell@gmail.com",3L);
+        createContact("KyloDroid", "cafreakanu@gmail.com",4L);
+
+        selector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 0){
+                    new getAllContactsByDateAsync().execute();
+                }
+                if(position == 1){
+                    new getAllContactsByNameAsync().execute();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
     }
-
-
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -103,25 +134,25 @@ public class MainActivity extends AppCompatActivity {
 
         TextView contactTitle = view.findViewById(R.id.title);
 
-            final EditText editName = view.findViewById(R.id.name);
-            final EditText editEmail = view.findViewById(R.id.email);
+        final EditText editName = view.findViewById(R.id.name);
+        final EditText editEmail = view.findViewById(R.id.email);
 
 
         contactTitle.setText("Add New Contact");
         alertDialog
-            .setCancelable(false)
-            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+                .setCancelable(false)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
-                }
-            })
-            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.cancel();
-                }
-            }  );
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                }  );
         final AlertDialog alertDialog1 =alertDialog.create();
         alertDialog1.show();
 
@@ -135,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     alertDialog1.dismiss();
                 }
-                createContact(editName.getText().toString(), editEmail.getText().toString());
+                createContact(editName.getText().toString(), editEmail.getText().toString(), System.currentTimeMillis());
             }
         });
 
@@ -211,8 +242,8 @@ public class MainActivity extends AppCompatActivity {
         contacts.remove(position);
     }
 
-    public void createContact(String name, String email){
-        new createContactAsyncTask().execute(new Contact(name, email, 0));
+    public void createContact(String name, String email, Long timestamp){
+        new createContactAsyncTask().execute(new Contact(name, email, 0,timestamp));
     }
 
     private class getAllContactsAsync extends AsyncTask<Void, Void, Void>{
@@ -220,6 +251,38 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             contacts.addAll(contactsDatabase.getContactDAO().getAllContacts());
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            contactsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private class getAllContactsByDateAsync extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            contacts.clear();
+            contacts.addAll(contactsDatabase.getContactDAO().getAllByDate());
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            contactsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private class getAllContactsByNameAsync extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            contacts.clear();
+            contacts.addAll(contactsDatabase.getContactDAO().getAllByName());
             return null;
         }
 
@@ -269,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Contact... contacts) {
-            contactsDatabase.getContactDAO().deleteCOntact(contacts[0]);
+            contactsDatabase.getContactDAO().deleteContact(contacts[0]);
             return null;
         }
 
@@ -284,12 +347,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-            Log.v("AAA", "onCreate()");
-            createContact("Anubhav", "anubhav11march@gmail.com");
-            createContact("Dev", "devjadeja549@gmail.com");
-            createContact("Avinash", "avinashkhetri@gmail.com");
-            createContact("Rishabh", "sleepercell@gmail.com");
-            createContact("KyloDroid", "cafreakanu@gmail.com");
+//            Log.v("AAA", "onCreate()");
+//            createContact("Anubhav", "anubhav11march@gmail.com",0L);
+//            createContact("Dev", "devjadeja549@gmail.com",1L);
+//            createContact("Avinash", "avinashkhetri@gmail.com",2L);
+//            createContact("Rishabh", "sleepercell@gmail.com",3L);
+//            createContact("KyloDroid", "cafreakanu@gmail.com",4L);
         }
 
         @Override

@@ -1,21 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:padding="5dp"
-    android:layout_height="wrap_content" android:background="@color/colorPrimary">
+    android:background="@drawable/round_shape"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/name"
-        android:textStyle="bold"
-        android:text="Name"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Email"
-        android:textStyle="italic"
-        android:id="@+id/email"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:padding="6dp"/>
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textStyle="italic"
+            android:padding="6dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            />
+
+    </LinearLayout>
 
 </LinearLayout>
